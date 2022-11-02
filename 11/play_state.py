@@ -1,7 +1,7 @@
 from pico2d import *
 import game_framework
 from grass import Grass
-from boy import Boy
+from drill11 import Boy
 
 boy = None
 grass = None
