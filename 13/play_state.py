@@ -3,11 +3,13 @@ import game_framework
 import game_world
 
 from grass import Grass
-from boy import Boy
+from drill13 import Bird
 
 
-boy = None
+bird = None
 grass = None
+
+birds = None
 
 def handle_events():
     events = get_events()
@@ -17,17 +19,23 @@ def handle_events():
         elif (event.type, event.key) == (SDL_KEYDOWN, SDLK_ESCAPE):
             game_framework.quit()
         else:
-            boy.handle_event(event)
+            for s in birds:
+                s.handle_event(event)
 
 
 # 초기화
 def enter():
-    global boy, grass
-    boy = Boy()
+    # global bird, grass
+    # bird = Bird()
+    global birds, grass
+
+    birds = [Bird() for i in range(10)]
+
     grass = Grass()
     game_world.add_object(grass, 0)
-    game_world.add_object(boy, 1)
-
+    # game_world.add_object(bird, 1)
+    for s in birds:
+        game_world.add_object(s, 1)
 
 # 종료
 def exit():
