@@ -7,6 +7,10 @@ class First_boss_map:
 
     def draw(self):
         self.image.draw(1280 // 2, 720 // 2)
+        draw_rectangle(*self.get_bb())
 
     def update(self):
         pass
+
+    def get_bb(self):
+        return 0, 0, 1280, 150
