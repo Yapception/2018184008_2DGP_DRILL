@@ -17,7 +17,7 @@ class Bullet:
     def draw(self):
         if self.dir == 1:
             self.image.clip_draw(self.frame * 200, 100, 200, 100, self.x, self.y)
-        else:
+        elif self.dir == -1:
             self.image.clip_composite_draw(self.frame * 200, 100, 200, 100,
                                            3.141592 , '', self.x, self.y, 200, 100)
 

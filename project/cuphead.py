@@ -52,12 +52,15 @@ class IDLE:
         elif self.face_dir == 1:
             self.image.clip_draw(int(self.frame) * 100, 150 * 0, 100, 150, self.x, self.y)
 
-RunWav = None
+
+run_sound = None
+
 
 class RUN:
+
     @staticmethod
     def enter(self, event):
-        global RunWav
+        global run_sound
         print('ENTER RUN')
         # 방향을 결정해야 하는데, 뭘 근거로? 어떤 키가 눌렸기 때문에?
         # 키 이벤트 정보가 필요
@@ -70,15 +73,16 @@ class RUN:
         elif event == LU:
             self.dir += 1
 
-        RunWav = load_wav('Sound/Player/player_land_ground_01.wav')
-        RunWav.play()
+        run_sound = load_wav('Sound/Player/player_land_ground_01.wav')
+        run_sound.play()
+
     @staticmethod
     def exit(self, event):
-        global RunWav
+        global run_sound
         print('EXIT RUN')
         self.face_dir = self.dir
 
-        del RunWav
+        del run_sound
 
     @staticmethod
     def do(self):
@@ -97,13 +101,13 @@ class RUN:
             self.image.clip_draw(int(self.frame) * 100, 150 * 2, 100, 150, self.x, self.y)
 
 
-JumpWav = None
+jump_sound = None
 
 
 class JUMP:
     @staticmethod
     def enter(self, event):
-        global JumpWav
+        global jump_sound
         print('ENTER JUMP')
         # 방향을 결정해야 하는데, 뭘 근거로? 어떤 키가 눌렸기 때문에?
         # 키 이벤트 정보가 필요
@@ -111,19 +115,15 @@ class JUMP:
             self.dir += 1
         elif event == LD:
             self.dir -= 1
-        elif event == RU:
-            self.dir -= 1
-        elif event == LU:
-            self.dir += 1
         else:
             self.dir = 0
-        JumpWav = load_wav('Sound/Player/player_jump_01.wav')
+        jump_sound = load_wav('Sound/Player/player_jump_01.wav')
 
     @staticmethod
     def exit(self, event):
-        global JumpWav
+        global jump_sound
         print('EXIT JUMP')
-        del JumpWav
+        del jump_sound
 
     @staticmethod
     def do(self):
@@ -134,15 +134,15 @@ class JUMP:
         self.x += 10 * self.dir
         self.x += self.dir * RUN_SPEED_PPS * game_framework.frame_time
 
-        self.y = 200 + 80 * math.sin(math.pi * ((22.5 * t)/180))
+        self.y = 200 + 150 * math.sin(math.pi * ((22.5 * t)/180))
 
         t = t + 1
 
         if t > 9:
             t = 0
+            jump_sound.play()
             self.add_event(Z)
 
-        JumpWav.play()
         delay(0.02)
 
     @staticmethod
@@ -152,12 +152,12 @@ class JUMP:
         elif self.face_dir == 1:
             self.image.clip_draw(int(self.frame) * 100, 150 * 6, 100, 150, self.x, self.y)
 
-ShootSound = None
+shoot_sound = None
 
 class SHOOT:
     @staticmethod
     def enter(self, event):
-        global ShootSound
+        global shoot_sound
         print('ENTER Shoot')
         # 방향을 결정해야 하는데, 뭘 근거로? 어떤 키가 눌렸기 때문에?
         # 키 이벤트 정보가 필요
@@ -165,33 +165,29 @@ class SHOOT:
             self.dir += 1
         elif event == LD:
             self.dir -= 1
-        elif event == RU:
-            self.dir -= 1
-        elif event == LU:
-            self.dir += 1
-        else:
-            self.dir = 0
-        ShootSound = load_wav('Sound/Player/player_default_fire_loop_01.wav')
+        shoot_sound = load_wav('Sound/Player/player_default_fire_loop_01.wav')
 
     @staticmethod
     def exit(self, event):
-        global ShootSound
+        global shoot_sound
         print('EXIT Shoot')
-        del ShootSound
+        del shoot_sound
+        self.face_dir = self.dir
 
     @staticmethod
     def do(self):
         global timer
-        global ShootSound
+        global shoot_sound
         self.frame = (self.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 3
 
         timer += 1
         if timer >= 3:
             timer = 0
-            self.add_event(X)
             self.fire_bullet(self.x, self.y, self.face_dir)
-        ShootSound.play()
-        delay(0.03)
+
+        shoot_sound.play()
+
+        delay(0.15)
 
     @staticmethod
     def draw(self):
@@ -204,8 +200,8 @@ class SHOOT:
 next_state = {
     IDLE: {RU: RUN, LU: RUN, RD: RUN, LD: RUN, Z: JUMP, X: SHOOT},
     RUN: {RU: IDLE, LU: IDLE, LD: IDLE, RD: IDLE, Z: JUMP, X: SHOOT},
-    JUMP: {RU: RUN, LU: RUN, RD: RUN, LD: RUN, Z: IDLE},
-    SHOOT: {RU: RUN, LU: RUN, RD: RUN, LD: RUN, X: IDLE}
+    JUMP: {RU: RUN, LU: RUN, RD: RUN, LD: RUN, X: SHOOT},
+    SHOOT: {RD: RUN, LD: RUN, Z: JUMP, X: SHOOT}
 }
 
 import random
@@ -217,11 +213,13 @@ class Cuphead:
         self.dir, self.face_dir = 0, 1
         self.image = load_image('Character/character.png')
         self.font = load_font('font/ENCR10B.TTF', 16)
-
         self.event_que = []
         self.cur_state = IDLE
         self.cur_state.enter(self, None)
         self.hp = 2
+
+        self.sound = load_wav('Sound/Announcer/announcer_start_battle.wav')
+        self.sound.play()
 
     def update(self):
         self.cur_state.do(self)
@@ -235,9 +233,14 @@ class Cuphead:
                 print(f'ERROR: State {self.cur_state.__name__}    Event {event_name[event]}')
             self.cur_state.enter(self, event)
 
+        if self.hp <= 0:
+            self.sound = load_wav('Sound/Announcer/announcer_knockout_0004.wav')
+            self.sound.play()
+            del Cuphead
+
     def draw(self):
         self.cur_state.draw(self)
-        self.font.draw(self.x - 60, self.y + 50, f'(Time: {get_time():.2f}),    dir: {self.dir} , (hp: {self.hp:.2f})', (255, 255, 0))
+        self.font.draw(self.x - 60, self.y + 50, f'(Time: {get_time():.2f}),    (dir: {self.dir}) , (hp: {self.hp:.2f})', (255, 255, 0))
         draw_rectangle(*self.get_bb())
 
     def add_event(self, event):
@@ -257,5 +260,8 @@ class Cuphead:
 
     def fire_bullet(self, xPos, yPos, dir):
         print('FIRE Bullet')
+
         bullet = Bullet(xPos, yPos, dir)
         game_world.add_object(bullet, 1)
+
+

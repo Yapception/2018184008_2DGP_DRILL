@@ -57,7 +57,7 @@ next_state = {
 
 import random
 
-class Boss1:
+class FirstBoss:
     def __init__(self):
         self.x, self.y = 800, 200
         self.frame = random.randint(0, 5)
@@ -84,7 +84,7 @@ class Boss1:
 
     def draw(self):
         self.cur_state.draw(self)
-        self.font.draw(self.x - 60, self.y + 50, f'(Time: {get_time():.2f}),    dir: {self.dir}', (255, 255, 0))
+        self.font.draw(self.x - 60, self.y + 50, f'(HP: {self.hp})', (255, 255, 0))
         draw_rectangle(*self.get_bb())
 
     def add_event(self, event):

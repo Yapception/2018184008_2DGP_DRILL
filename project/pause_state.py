@@ -11,7 +11,7 @@ def enter():
     global image
     global PauseSound
     image = load_image('UI/pause.png')
-    PauseSound = load_music('Sound/MainTheme/MainTheme.mp3')
+    PauseSound = load_wav('Sound/Menu/Menu_Category_Select.wav')
 
     PauseSound.play()
 
@@ -29,9 +29,9 @@ def handle_events():
         if event.type == SDL_QUIT:
             game_framework.quit()
         else:
-            if (event.type, event.key) == (SDL_KEYDOWN, SDLK_1):
+            if (event.type, event.key) == (SDL_KEYDOWN, SDLK_KP_ENTER):
                 game_framework.quit()
-            elif (event.type, event.key) == (SDL_KEYDOWN, SDLK_2):
+            elif (event.type, event.key) == (SDL_KEYDOWN, SDLK_ESCAPE):
                 game_framework.pop_state()
 
 

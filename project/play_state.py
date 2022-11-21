@@ -4,7 +4,7 @@ import game_world
 
 import pause_state
 from cuphead import Cuphead
-from first_boss import Boss1
+from first_boss import FirstBoss
 from first_boss_map import First_boss_map
 from bullet import Bullet
 
@@ -21,7 +21,7 @@ bgm = None
 def enter():
     global cuphead, first_boss_map, boss1
     cuphead = Cuphead()
-    boss1 = Boss1()
+    boss1 = FirstBoss()
     first_boss_map = First_boss_map()
 
     game_world.add_object(first_boss_map, 0)
