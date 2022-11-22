@@ -10,7 +10,7 @@ from bullet import Bullet
 
 
 cuphead = None
-boss1 = None
+first_boss = None
 
 first_boss_map = None
 
@@ -19,18 +19,18 @@ bullets = []
 bgm = None
 
 def enter():
-    global cuphead, first_boss_map, boss1
+    global cuphead, first_boss_map, first_boss
     cuphead = Cuphead()
-    boss1 = FirstBoss()
+    first_boss = FirstBoss()
     first_boss_map = First_boss_map()
 
     game_world.add_object(first_boss_map, 0)
     game_world.add_object(cuphead, 1)
-    game_world.add_object(boss1, 1)
+    game_world.add_object(first_boss, 1)
 
 
-    # game_world.add_collision_pairs(cuphead, boss1, 'cuphead:boss1')
-    # game_world.add_collision_pairs(bullets, boss1, 'bullet:boss1')
+    game_world.add_collision_pairs(cuphead, first_boss, 'cuphead:first_boss')
+    game_world.add_collision_pairs(bullets, first_boss, 'bullet:first_boss')
 
     global bgm
 
@@ -96,14 +96,14 @@ def update():
     for game_object in game_world.all_objects():
         game_object.update()
 
-    if collide(cuphead, boss1):
-        print("COLLISION CUPHEAD:boss1")
+    if collide(cuphead, first_boss):
+        print("COLLISION cuphead:first_boss")
 
-    # for a, b, group in game_world.all_collision_pair():
-    #     if collide(a, b):
-    #         print('COLLISION ', group)
-    #         a.handle_collision(b, group)
-    #         b.handle_collision(a, group)
+    for a, b, group in game_world.all_collision_pair():
+        if collide(a, b):
+            print('COLLISION ', group)
+            a.handle_collision(b, group)
+            b.handle_collision(a, group)
     pass
 
 

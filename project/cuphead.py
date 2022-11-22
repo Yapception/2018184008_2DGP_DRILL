@@ -197,6 +197,7 @@ class SHOOT:
             self.image.clip_draw(int(self.frame) * 100, 150 * 10, 100, 150, self.x, self.y)
 
 
+
 next_state = {
     IDLE: {RU: RUN, LU: RUN, RD: RUN, LD: RUN, Z: JUMP, X: SHOOT},
     RUN: {RU: IDLE, LU: IDLE, LD: IDLE, RD: IDLE, Z: JUMP, X: SHOOT},
@@ -204,7 +205,9 @@ next_state = {
     SHOOT: {RD: RUN, LD: RUN, Z: JUMP, X: SHOOT}
 }
 
+
 import random
+
 
 class Cuphead:
     def __init__(self):
@@ -234,9 +237,12 @@ class Cuphead:
             self.cur_state.enter(self, event)
 
         if self.hp <= 0:
+            self.x -= self.face_dir * 100
+
             self.sound = load_wav('Sound/Announcer/announcer_knockout_0004.wav')
             self.sound.play()
-            del Cuphead
+            self.hp = 1
+            # del Cuphead
 
     def draw(self):
         self.cur_state.draw(self)
@@ -255,7 +261,7 @@ class Cuphead:
         return self.x - 50, self.y - 75, self.x + 50, self.y + 75
 
     def handle_collision(self, other, group):
-        if group == 'cuphead:boss1':
+        if group == 'cuphead:first_boss':
             self.hp -= 1
 
     def fire_bullet(self, xPos, yPos, dir):

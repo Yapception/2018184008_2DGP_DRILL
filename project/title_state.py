@@ -4,25 +4,25 @@ import game_framework
 import play_state
 
 image = None
-titleSound = None
+title_music = None
 
-title_time = 0
+title_frame = 0
+
 
 def enter():
     global image
-    global titleSound
-    # image = load_image('title_screen/Background/title_sheet.png')
-    image = load_image('title_screen/Background/title_screen_background.png')
-    titleSound = load_music('Sound/MainTheme/MainTheme.mp3')
+    global title_music
+    image = load_image('title_screen/Background/Title_SpriteSheet.png')
+    title_music = load_music('Sound/MainTheme/MainTheme.mp3')
 
-    titleSound.play()
+    title_music.play()
 
 
 def exit():
-    global image, titleSound
+    global image, title_music
 
     del image
-    del titleSound
+    del title_music
 
 
 def handle_events():
@@ -38,20 +38,24 @@ def handle_events():
 
 
 def draw():
-    global title_time
+    global title_frame
 
     clear_canvas()
-    # image.clip_draw(title_time * 100 * 1280, 0, 1280, 720, 0, 0)
-    image.draw(1280 // 2, 720 // 2)
+    image.clip_draw(title_frame* 498, 0, 498, 278, 1280//2, 720//2, 1280, 720)
     update_canvas()
 
 
 def update():
-    # global title_time
-    # if title_time > 0.21:
-    #     title_time = 0
-    # delay(0.1)
-    # title_time += 0.1
+    global title_frame
+
+    image.clip_draw(title_frame* 498, 0, 498, 278, 1280//2, 720//2, 1280, 720)
+
+    title_frame += 1
+
+    if title_frame >= 21:
+        title_frame = 0
+
+    delay(0.056)
     pass
 
 

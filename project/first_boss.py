@@ -19,17 +19,17 @@ TIME_PER_ACTION = 0.5
 ACTION_PER_TIME = 1.0 / TIME_PER_ACTION
 FRAMES_PER_ACTION = 5
 
-RD, LD, RU, LU, Z, X = range(6)
-event_name = ['RD', 'LD', 'RU', 'LU', 'Z', 'X']
-
-key_event_table = {
-    (SDL_KEYDOWN, SDLK_RIGHT): RD,
-    (SDL_KEYDOWN, SDLK_LEFT): LD,
-    (SDL_KEYUP, SDLK_RIGHT): RU,
-    (SDL_KEYUP, SDLK_LEFT): LU,
-    (SDL_KEYDOWN, SDLK_z): Z,
-    (SDL_KEYDOWN, SDLK_x): X
-}
+# RD, LD, RU, LU, Z, X = range(6)
+# event_name = ['RD', 'LD', 'RU', 'LU', 'Z', 'X']
+#
+# key_event_table = {
+#     (SDL_KEYDOWN, SDLK_RIGHT): RD,
+#     (SDL_KEYDOWN, SDLK_LEFT): LD,
+#     (SDL_KEYUP, SDLK_RIGHT): RU,
+#     (SDL_KEYUP, SDLK_LEFT): LU,
+#     (SDL_KEYDOWN, SDLK_z): Z,
+#     (SDL_KEYDOWN, SDLK_x): X
+# }
 
 class IDLE:
     @staticmethod
@@ -52,7 +52,8 @@ class IDLE:
             self.image.clip_draw(int(self.frame) * 393, 350 * 0, 393, 350, self.x, self.y)
 
 next_state = {
-    IDLE: {RU: IDLE, LU: IDLE, RD: IDLE, LD: IDLE, Z: IDLE, X: IDLE}
+    # IDLE: {RU: IDLE, LU: IDLE, RD: IDLE, LD: IDLE, Z: IDLE, X: IDLE}
+    IDLE: {(SDL_KEYDOWN, SDLK_RIGHT): IDLE}
 }
 
 import random
@@ -79,7 +80,8 @@ class FirstBoss:
             try:
                 self.cur_state = next_state[self.cur_state][event]
             except KeyError:
-                print(f'ERROR: State {self.cur_state.__name__}    Event {event_name[event]}')
+                # print(f'ERROR: State {self.cur_state.__name__}    Event {event_name[event]}')
+                pass
             self.cur_state.enter(self, event)
 
     def draw(self):
@@ -91,12 +93,13 @@ class FirstBoss:
         self.event_que.insert(0, event)
 
     def handle_events(self, event):
-        if (event.type, event.key) in key_event_table:
-            key_event = key_event_table[(event.type, event.key)]
-            self.add_event(key_event)
+        # if (event.type, event.key) in key_event_table:
+        #     key_event = key_event_table[(event.type, event.key)]
+        #     self.add_event(key_event)
+        pass
 
     def handle_collision(self, other, group):
-        if group == 'bullet:boss1':
+        if group == 'bullet:first_boss':
             self.hp -= 1
 
     def get_bb(self):

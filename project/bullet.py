@@ -22,7 +22,7 @@ class Bullet:
                                            3.141592 , '', self.x, self.y, 200, 100)
 
     def handle_collision(self, other, group):
-        if group == 'bullet:boss1':
+        if group == 'bullet:first_boss':
             self.__del__()
 
     def update(self):
