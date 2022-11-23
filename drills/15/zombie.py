@@ -90,11 +90,10 @@ class Zombie:
 
         self.target_ball = None
         self.font = load_font('ENCR10B.TTF', 16)
-        self.hp = 0
+        self.hp = 500
 
         self.target_marker = TargetMarker(self.tx, self.ty)
         game_world.add_object(self.target_marker, 1)
-
 
     def calculate_current_position(self):
         self.frame = (self.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % FRAMES_PER_ACTION
@@ -103,43 +102,101 @@ class Zombie:
         self.x = clamp(50, self.x, 1280 - 50)
         self.y = clamp(50, self.y, 1024 - 50)
 
-
     def find_random_location(self):
-        # fill here
-        pass
+        self.tx, self.ty = random.randint(50, 1230), random.randint(60, 974)
+        self.target_marker.x, self.target_marker.y = self.tx, self.ty
+        return BehaviorTree.SUCCESS
 
-    def move_to(self, radius = 0.5):
-        # fill here
-        pass
+    def move_to(self, radius=0.5):
+        distance = (self.tx - self.x) ** 2 + (self.ty - self.y) ** 2
+        self.dir = math.atan2(self.ty - self.y, self.tx - self.x)
+        if distance < (PIXEL_PER_METER * radius) ** 2:
+            self.speed = 0
+            return BehaviorTree.SUCCESS
+        else:
+            self.speed = RUN_SPEED_PPS
+            return BehaviorTree.RUNNING
 
     def play_beep(self):
         winsound.Beep(440, 100)
         return BehaviorTree.SUCCESS
 
     def find_ball_location(self):
-        # fill here
-        pass
+        self.target_ball = None
+        shortest_distance = 1280 ** 2
+        # find in-sight(5meters) and nearest ball
+        for o in game_world.all_objects():
+            if type(o) is Ball:
+                ball = o
+                distance = (ball.x - self.x) ** 2 + (ball.y - self.y) ** 2
+                if distance < (PIXEL_PER_METER * 7) ** 2 and distance < shortest_distance:
+                    self.target_ball = ball
+                    shortest_distance = distance
+        if self.target_ball is not None:
+            self.tx, self.ty = self.target_ball.x, self.target_ball.y
+            return BehaviorTree.SUCCESS
+        else:
+            return BehaviorTree.FAIL
 
     def calculate_squared_distance(self, a, b):
         return (a.x-b.x)**2 + (a.y-b.y)**2
 
     def move_to_boy(self):
-        # fill here
-        pass
+        distance = self.calculate_squared_distance(self, server.boy)
+        if distance > (PIXEL_PER_METER * 10)**2:
+            self.speed = 0
+            return BehaviorTree.FAIL
+
+        if self.hp > server.boy.hp:
+            self.dir = math.atan2(server.boy.y - self.y, server.boy.x - self.x)
+            if distance < (PIXEL_PER_METER * 0.5) ** 2:
+                self.speed = 0
+                return BehaviorTree.SUCCESS
+            else:
+                self.speed = RUN_SPEED_PPS
+                return BehaviorTree.RUNNING
+        else:
+            self.speed = 0
+            return BehaviorTree.FAIL
 
     def flee_from_boy(self):
-        # fill here
-        pass
+        distance = self.calculate_squared_distance(self, server.boy)
+        if distance > (PIXEL_PER_METER * 10)**2:
+            self.speed = 0
+            return BehaviorTree.FAIL
+        if self.hp <= server.boy.hp:
+            self.dir = math.atan2(self.y - server.boy.y, self.x - server.boy.x)
+            self.speed = RUN_SPEED_PPS
+            return BehaviorTree.RUNNING
+        else:
+            self.speed = 0
+            return BehaviorTree.FAIL
 
     def build_behavior_tree(self):
-        # fill here
-        pass
+        find_random_location_node = Leaf('Find Random Location', self.find_random_location)
+        move_to_node = Leaf('Move To', self.move_to)
+        play_beep_node = Leaf('Play Beep', self.play_beep)
+        wander_sequence = Sequence('Wander', find_random_location_node, move_to_node, play_beep_node)
+
+        find_ball_location_node = Leaf('Find Ball Location', self.find_ball_location)
+        eat_ball_sequence = Sequence('Eat Ball', find_ball_location_node, move_to_node, play_beep_node)
+
+        wander_or_eat_ball_selector = Selector('Wander or Eat Ball', eat_ball_sequence, wander_sequence)
+
+        move_to_boy_node = Leaf('Mobe to Boy', self.move_to_boy)
+        flee_from_boy_node = Leaf('Flee from Boy', self.flee_from_boy)
+        chase_or_flee_selector = Selector('Chase of Flee Boy', move_to_boy_node, flee_from_boy_node)
+
+        final_selector = Selector('Final', chase_or_flee_selector, wander_or_eat_ball_selector)
+
+        self.bt = BehaviorTree(final_selector)
+
 
     def get_bb(self):
         return self.x - 50, self.y - 50, self.x + 50, self.y + 50
 
     def update(self):
-        # fill here
+        self.bt.run()
         self.calculate_current_position()
 
     def draw(self):
