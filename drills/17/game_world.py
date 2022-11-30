@@ -85,9 +85,16 @@ def update():
 
 
 def save():
-    # fill here
+    # 모든 개게정보를 저장하면 된다.
+    #
+    game = [objects, collision_group]
+    with open('game.sav','wb') as f:
+        pickle.dump(game,f)
     pass
 
 def load():
-    # fill here
+    global objects, collision_group
+    with open('game.sav','rb') as f:
+        game = pickle.load(f)
+        objects, lision_group = game[0], game[1]
     pass

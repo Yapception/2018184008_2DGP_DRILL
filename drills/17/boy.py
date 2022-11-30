@@ -112,7 +112,7 @@ class Boy:
     font = None
 
     def __init__(self):
-        self.x, self.y = 1280 // 2, 1024 // 2
+        self.x, self.y = get_canvas_width() // 2, get_canvas_height() // 2
 
         # Boy is only once created, so instance image loading is fine
         if Boy.image is None:
@@ -130,11 +130,18 @@ class Boy:
 
 
     def __getstate__(self):
-        # fill here
-        pass
+        # 저장해야할 속성을 지정
+        # dic 형식으로 리턴함.
+        info = {'x': self.x, 'y': self.y, 'dir': self.dir, 'cur_state': self.cur_state}
+
+        return info
+
     def __setstate__(self, state):
-        # fill here
-        pass
+        self.__init__()
+
+        self.__dict__.update(state)
+
+    # __getstate__, __setstate__는 피클링할때 피클링할 대상만 선택적으로 선택가능.
 
     def get_bb(self):
         # fill here
